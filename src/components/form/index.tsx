@@ -1,24 +1,19 @@
 import {
   Box,
   Button,
+  Center,
   FormControl,
   FormLabel,
   Heading,
   HStack,
+  Input,
   Select,
+  Stack,
   Text,
   VStack,
-  Stack,
-  Input,
-} from "@chakra-ui/react";
-import {
-  ChangeEvent,
-  ChangeEventHandler,
-  OptionHTMLAttributes,
-  useEffect,
-  useState,
-} from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
+} from '@chakra-ui/react';
+import { ChangeEvent, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 type FormData = {
   origem?: String;
@@ -27,53 +22,47 @@ type FormData = {
   plano?: String;
 };
 
-type Cost = {
+type CallCost = {
   custoComPlano?: Number;
   custoSemPlano?: Number;
 };
 
 type Response = {
-  Ok: Cost;
+  Ok: CallCost;
 };
 
 export const Form = () => {
   const {
     register,
     handleSubmit,
-    setError,
     formState: { errors },
-  } = useForm({ mode: "onChange" });
-  const [callValue, setCallValue] = useState<Response>();
-  const [cost, setCost] = useState<Response>();
+  } = useForm({ mode: 'onChange' });
 
-  const [selected, setSelected] = useState<String>();
+  const [selectedOrigemDDD, setSelectedOrigemDDD] = useState<String>();
   const [DDD, setDDD] = useState<boolean>();
+  const [requestedCallValue, setRequestedCallValue] = useState<Response>({
+    Ok: { custoComPlano: 0, custoSemPlano: 0 },
+  });
+  const [callCost, setCallCost] = useState<Response>();
 
   function handleChange(event: ChangeEvent<HTMLSelectElement>) {
     const selected = event.target.options[event.target.selectedIndex].value;
 
-    console.log(selected);
-
-    selected === "011" ? setDDD(true) : setDDD(false);
-    setSelected(selected);
+    selected === '011' ? setDDD(true) : setDDD(false);
+    setSelectedOrigemDDD(selected);
   }
 
   useEffect(() => {
-    setCost(callValue);
-  }, [callValue]);
+    setCallCost(requestedCallValue);
+  }, [requestedCallValue]);
 
-  async function handleFetch({
-    origem,
-    destino,
-    duracao,
-    plano,
-  }: FormData): Promise<Response> {
+  async function handleFetch({ origem, destino, duracao, plano }: FormData): Promise<Response> {
     const response = await fetch(
       `http://localhost:3333/tarifa?origem=${origem}&destino=${destino}&duracao=${duracao}&plano=${plano}`,
       {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       }
     )
@@ -81,39 +70,35 @@ export const Form = () => {
         return response.json();
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
       });
 
-    setCallValue(response);
+    setRequestedCallValue(response);
 
     return response;
   }
 
   return (
-    <VStack>
-      <Heading color={"#3182ce"}>FaleMais</Heading>
+    <VStack maxW="1280px" w="100%" h="100vh" justifyContent="center">
+      <Heading color={'#3182ce'}>FaleMais</Heading>
 
-      <Stack
-        w="100%"
-        border={"1px"}
-        borderColor={"gray"}
-        borderRadius={"lg"}
-        p={5}
-      >
+      <Stack w="100%" border={'1px'} borderColor={'gray'} borderRadius={'lg'} p={5}>
         <form onSubmit={handleSubmit(handleFetch)}>
           <FormControl>
             <FormLabel htmlFor="origem">Origem</FormLabel>
             <Select
               id="origem"
               placeholder="Selecione o DDD de origem"
-              {...register("origem", { required: true })}
+              {...register('origem', { required: 'Selecione o DDD de origem' })}
               onChange={handleChange}
             >
-              <option value={"011"}>011</option>
-              <option value={"016"}>016</option>
-              <option value={"017"}>017</option>
-              <option value={"018"}>018</option>
+              <option value={'011'}>011</option>
+              <option value={'016'}>016</option>
+              <option value={'017'}>017</option>
+              <option value={'018'}>018</option>
             </Select>
+
+            {errors.origem && <Text color="red">{errors.origem.message}</Text>}
           </FormControl>
 
           <FormControl>
@@ -121,18 +106,20 @@ export const Form = () => {
             <Select
               id="destino"
               placeholder="Selecione o DDD de destino"
-              {...register("destino", { required: true })}
+              {...register('destino', { required: 'Selecione o DDD de destino' })}
             >
-              {selected && DDD ? (
+              {selectedOrigemDDD && DDD ? (
                 <>
-                  <option value={"016"}>016</option>
-                  <option value={"017"}>017</option>
-                  <option value={"018"}>018</option>
+                  <option value={'016'}>016</option>
+                  <option value={'017'}>017</option>
+                  <option value={'018'}>018</option>
                 </>
               ) : (
-                <option value={"011"}>011</option>
+                <option value={'011'}>011</option>
               )}
             </Select>
+
+            {errors.destino && <Text color="red">{errors.destino.message}</Text>}
           </FormControl>
 
           <FormControl>
@@ -142,15 +129,15 @@ export const Form = () => {
               id="duracao"
               variant="outline"
               placeholder="Informe a duração da chamada"
-              {...register("duracao", {
-                required: true,
+              {...register('duracao', {
+                required: 'Informe os minutos de duração da chamada',
                 pattern: {
                   value: /^[0-9]+$/,
-                  message: "Somente números",
+                  message: 'Somente números',
                 },
               })}
             />
-            {errors.duracao && <Text color="red">{errors.duracao.errors}</Text>}
+            {errors.duracao && <Text color="red">{errors.duracao.message}</Text>}
           </FormControl>
 
           <FormControl>
@@ -158,46 +145,49 @@ export const Form = () => {
             <Select
               id="plano"
               placeholder="Selecione o plano"
-              {...register("plano", { required: true })}
+              {...register('plano', { required: 'Selecione o plano' })}
             >
-              <option value={"FaleMais 30"}>FaleMais 30</option>
-              <option value={"FaleMais 60"}>FaleMais 60</option>
-              <option value={"FaleMais 120"}>FaleMais 120</option>
+              <option value={'FaleMais 30'}>FaleMais 30</option>
+              <option value={'FaleMais 60'}>FaleMais 60</option>
+              <option value={'FaleMais 120'}>FaleMais 120</option>
             </Select>
+
+            {errors.plano && <Text color="red">{errors.plano.message}</Text>}
           </FormControl>
 
-          <Box w={"100%"}></Box>
+          <Box>
+            <HStack justify={'space-around'} w={'100%'} mt={5} mb={5}>
+              <VStack>
+                <Text fontWeight="bold" fontSize={'lg'}>
+                  Com FaleMais
+                </Text>
 
-          <HStack justify={"space-around"} w={"100%"}>
-            <VStack>
-              <Text fontWeight="bold" fontSize={"lg"}>
-                Com FaleMais
-              </Text>
+                <Box>
+                  <Text fontSize={'lg'}>{`$ ${
+                    callCost?.Ok && callCost.Ok.custoComPlano?.toFixed(2)
+                  }`}</Text>
+                </Box>
+              </VStack>
 
-              <Box>
-                <Text fontSize={"lg"}>{cost?.Ok && cost.Ok.custoComPlano}</Text>
-              </Box>
-            </VStack>
+              <VStack>
+                <Text fontWeight="bold" fontSize={'lg'}>
+                  Sem FaleMais
+                </Text>
 
-            <VStack>
-              <Text fontWeight="bold" fontSize={"lg"}>
-                Sem FaleMais
-              </Text>
+                <Box>
+                  <Text fontSize={'lg'}>{`$ ${
+                    callCost?.Ok && callCost.Ok.custoSemPlano?.toFixed(2)
+                  }`}</Text>
+                </Box>
+              </VStack>
+            </HStack>
+          </Box>
 
-              <Box>
-                <Text fontSize={"lg"}>{cost?.Ok && cost.Ok.custoSemPlano}</Text>
-              </Box>
-            </VStack>
-          </HStack>
-
-          <Button
-            bgColor={"#3182ce"}
-            color={"#FFF"}
-            _hover={{ opacity: "0.6" }}
-            type={"submit"}
-          >
-            Calcular chamada
-          </Button>
+          <Center>
+            <Button bgColor={'#3182ce'} color={'#FFF'} _hover={{ opacity: '0.6' }} type={'submit'}>
+              Calcular chamada
+            </Button>
+          </Center>
         </form>
       </Stack>
     </VStack>
