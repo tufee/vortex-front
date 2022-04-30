@@ -11,34 +11,40 @@ import {
   Stack,
   Input,
 } from "@chakra-ui/react";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 
-type FaleMais = {
+type Chamada = {
   origem: String;
   destino: String;
   duracao: Number;
   plano: String;
 };
 
-export const Form = () => {
-  const {
-    handleSubmit,
-    register,
-    formState: { errors, isSubmitting },
-  } = useForm();
+type Response = {
+  custoComPlano: Number;
+  custoSemPlano: Number;
+};
 
-  async function handleFetch({ origem, destino, duracao, plano }: FaleMais) {
-    await fetch("/tarifa", {
-      method: "post",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ origem, destino, duracao, plano }),
-    })
-      .then((response) => response.json())
-      .catch((err) => console.log(err));
-  }
+export const Form = () => {
+  const { handleSubmit, register } = useForm<Chamada>();
+
+  const handleFetch = async ({ origem, destino, duracao, plano }: Chamada) => {
+    return fetch(
+      `/tarifa?origem=${origem}&destino=${destino}&duracao=${duracao}&plano=${plano}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((response) => {
+        return response.json();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   return (
     <VStack>
@@ -125,6 +131,7 @@ export const Form = () => {
             bgColor={"#3182ce"}
             color={"#FFF"}
             _hover={{ opacity: "0.6" }}
+            type={"submit"}
           >
             Calcular ligação
           </Button>
