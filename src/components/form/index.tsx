@@ -80,9 +80,9 @@ export const Form = () => {
 
   return (
     <VStack maxW="1280px" w="100%" h="100vh" justifyContent="center">
-      <Heading color={'#3182ce'}>FaleMais</Heading>
+      <Heading color="#3182ce">FaleMais</Heading>
 
-      <Stack w="100%" border={'1px'} borderColor={'gray'} borderRadius={'lg'} p={5}>
+      <Stack w="100%" border={'1px'} borderColor="gray" borderRadius="lg" p={5}>
         <form onSubmit={handleSubmit(handleFetch)}>
           <FormControl>
             <FormLabel htmlFor="origem">Origem</FormLabel>
@@ -163,19 +163,19 @@ export const Form = () => {
                 </Text>
 
                 <Box>
-                  <Text fontSize={'lg'}>{`$ ${
+                  <Text fontSize="lg">{`$ ${
                     callCost?.Ok && callCost.Ok.custoComPlano?.toFixed(2)
                   }`}</Text>
                 </Box>
               </VStack>
 
               <VStack>
-                <Text fontWeight="bold" fontSize={'lg'}>
+                <Text fontWeight="bold" fontSize="lg">
                   Sem FaleMais
                 </Text>
 
                 <Box>
-                  <Text fontSize={'lg'}>{`$ ${
+                  <Text fontSize="lg">{`$ ${
                     callCost?.Ok && callCost.Ok.custoSemPlano?.toFixed(2)
                   }`}</Text>
                 </Box>
@@ -184,7 +184,7 @@ export const Form = () => {
           </Box>
 
           <Center>
-            <Button bgColor={'#3182ce'} color={'#FFF'} _hover={{ opacity: '0.6' }} type={'submit'}>
+            <Button bgColor="#3182ce" color="#FFF" _hover={{ opacity: '0.6' }} type="submit">
               Calcular chamada
             </Button>
           </Center>
